@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams, useLocation } from "react-router-dom";
 
 export default function App() {
     const [state, setState] = useState({
@@ -9,14 +10,32 @@ export default function App() {
         finalData: [],
         shapeOptions: [],
         colorOptions: [],
-        sizeOptions: []
+        sizeOptions: [],
+        initialDataFetch: false
     });
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const location = useLocation();
 
     async function fetchData() {
         const finalUrl = generateUrl();
+        const paramStr = finalUrl.split("?")[1];
+        setSearchParams(paramStr);
         const res = await fetch(finalUrl);
         const data = await res.json();
         setState(state => ({ ...state, finalData: data }));
+    }
+
+    async function fetchDataOnMount() {
+        const res = await fetch(
+            `http://localhost:3000/planets/${location.search}`
+        );
+        const data = await res.json();
+        setState(state => ({
+            ...state,
+            finalData: data,
+            initialDataFetch: true
+        }));
     }
 
     function generateUrl() {
@@ -39,11 +58,62 @@ export default function App() {
         allOptions("color");
         allOptions("shape");
         allOptions("size");
+        const params = {};
+        for (let [key, value] of searchParams.entries()) {
+            params[key] =
+                params[key] && params[key]?.length !== 0
+                    ? [...params[key], value]
+                    : [value];
+        }
+        console.log(params, "params");
+        if (Object.keys(params).length !== 0) {
+            setState(state => ({
+                ...state,
+                searchText: params["q"] ?? "",
+                selectedColors: params["color"] ?? [],
+                selectedShapes: params["shape"] ?? [],
+                selectedSizes: params["size"] ?? []
+            }));
+        }
     }, []);
 
     useEffect(() => {
-        fetchData();
+        fetchDataOnMount();
+    }, []);
+
+    useEffect(() => {
+        if (state.initialDataFetch) {
+            fetchData();
+        }
     }, [state.selectedColors, state.selectedShapes, state.selectedSizes]);
+
+    const handleChange = (e, type) => {
+        const val = e.target.value;
+        setState(state => ({
+            ...state,
+            [type]: !state[type]?.includes(val)
+                ? [...state[type], val]
+                : state[type]?.filter(item => item !== val)
+        }));
+    };
+
+    const optionSections = [
+        {
+            label: "Shape",
+            data: state.shapeOptions,
+            type: "selectedShapes"
+        },
+        {
+            label: "Color",
+            data: state.colorOptions,
+            type: "selectedColors"
+        },
+        {
+            label: "Size",
+            data: state.sizeOptions,
+            type: "selectedSizes"
+        }
+    ];
 
     return (
         <section>
@@ -69,11 +139,7 @@ export default function App() {
             {state.colorOptions?.length !== 0 &&
                 state.sizeOptions?.length !== 0 &&
                 state.shapeOptions?.length !== 0 &&
-                [
-                    { label: "Shape", data: state.shapeOptions },
-                    { label: "Color", data: state.colorOptions },
-                    { label: "Size", data: state.sizeOptions }
-                ]?.map(section => {
+                optionSections?.map(section => {
                     return (
                         <div key={section.label}>
                             <h3>{section.label}</h3>
@@ -85,27 +151,14 @@ export default function App() {
                                     >
                                         <input
                                             type="checkbox"
-                                            name="shapes"
+                                            defaultChecked={state[
+                                                section.type
+                                            ]?.includes(item.id)}
+                                            name={section.label}
                                             value={item.id}
-                                            onChange={e => {
-                                                const val = e.target.value;
-                                                setState(state => ({
-                                                    ...state,
-                                                    selectedColors:
-                                                        !state.selectedColors?.includes(
-                                                            val
-                                                        )
-                                                            ? [
-                                                                  ...state.selectedColors,
-                                                                  val
-                                                              ]
-                                                            : state.selectedColors?.filter(
-                                                                  item =>
-                                                                      item !==
-                                                                      val
-                                                              )
-                                                }));
-                                            }}
+                                            onChange={e =>
+                                                handleChange(e, section.type)
+                                            }
                                             className="h-4 w-4 text-gray-900"
                                         />
                                         <span className="ml-2 mb-1 text-sm  text-gray-700">
