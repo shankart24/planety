@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { addData } from "../Store/features/dataSlice";
@@ -114,35 +114,39 @@ export default function Sidebar({ generateUrl, fetchData }) {
     ];
 
     return (
-        <div className="bg-yellow-200">
+        <div className=" space-y-5 px-6 md:px-0 py-3 md:py-0 border-r border-gray-200">
             {optionSections?.map(section => {
                 return (
-                    <div key={section.label}>
-                        <h3>{section.label}</h3>
-                        {section.data?.map(item => {
-                            return (
-                                <label
-                                    key={item.id}
-                                    className="inline-flex items-center"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={state[section.type]?.includes(
-                                            item.id
-                                        )}
-                                        name={section.label}
-                                        value={item.id}
-                                        onChange={e =>
-                                            handleChange(e, section.type)
-                                        }
-                                        className="h-4 w-4 text-gray-900"
-                                    />
-                                    <span className="ml-2 mb-1 text-sm  text-gray-700">
-                                        {item.name}
-                                    </span>
-                                </label>
-                            );
-                        })}
+                    <div key={section.label} className="">
+                        <h3 className="font-semibold text-xl tracking-tight py-2 text-blue-900">
+                            {section.label}
+                        </h3>
+                        <div className="space-y-3 flex flex-col mt-2">
+                            {section.data?.map(item => {
+                                return (
+                                    <label
+                                        key={item.id}
+                                        className="inline-flex items-center cursor-pointer"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={state[
+                                                section.type
+                                            ]?.includes(item.id)}
+                                            name={section.label}
+                                            value={item.id}
+                                            onChange={e =>
+                                                handleChange(e, section.type)
+                                            }
+                                            className="h-4 w-4 text-gray-900 font-medium"
+                                        />
+                                        <span className="ml-2 text-md  text-gray-900">
+                                            {item.name}
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
                     </div>
                 );
             })}
