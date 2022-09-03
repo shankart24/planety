@@ -11,9 +11,6 @@ import {
 
 export default function Sidebar({ generateUrl, fetchData }) {
     const [state, setState] = useState({
-        selectedColors: [],
-        selectedShapes: [],
-        selectedSizes: [],
         initialDataFetch: false
     });
 
@@ -27,9 +24,7 @@ export default function Sidebar({ generateUrl, fetchData }) {
         const res = await fetch(
             `http://localhost:3000/planets/${location.search}`
         );
-        console.log(location.search, "location.search");
         const data = await res.json();
-        console.log(data, "data from fetchDataOnMount");
         dispatch(addData(data));
         setState(state => ({
             ...state,
@@ -61,12 +56,6 @@ export default function Sidebar({ generateUrl, fetchData }) {
                 const res = Object.keys(params)?.map(key => {
                     return { name: key, data: params[key] };
                 });
-                setState(state => ({
-                    ...state,
-                    selectedColors: params["color"] ?? [],
-                    selectedShapes: params["shape"] ?? [],
-                    selectedSizes: params["size"] ?? []
-                }));
                 dispatch(handleOptionsOnMount(res));
             })
             .then(() => {
@@ -85,14 +74,7 @@ export default function Sidebar({ generateUrl, fetchData }) {
     ]);
 
     const handleChange = (e, type) => {
-        const val = e.target.value;
-        setState(state => ({
-            ...state,
-            [type]: !state[type]?.includes(val)
-                ? [...state[type], val]
-                : state[type]?.filter(item => item !== val)
-        }));
-        dispatch(handleOptions({ name: type, data: val }));
+        dispatch(handleOptions({ name: type, data: e.target.value }));
     };
 
     const optionSections = [
@@ -130,7 +112,7 @@ export default function Sidebar({ generateUrl, fetchData }) {
                                     >
                                         <input
                                             type="checkbox"
-                                            checked={state[
+                                            checked={filtersState[
                                                 section.type
                                             ]?.includes(item.id)}
                                             name={section.label}
@@ -138,9 +120,9 @@ export default function Sidebar({ generateUrl, fetchData }) {
                                             onChange={e =>
                                                 handleChange(e, section.type)
                                             }
-                                            className="h-4 w-4 text-gray-900 font-medium"
+                                            className="h-4 w-4 text-gray-900 font-medium cursor-pointer"
                                         />
-                                        <span className="ml-2 text-md  text-gray-900">
+                                        <span className="ml-2 text-md  text-gray-900 ">
                                             {item.name}
                                         </span>
                                     </label>

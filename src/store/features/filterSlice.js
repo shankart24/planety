@@ -22,16 +22,19 @@ export const filterSlice = createSlice({
         handleOptionsOnMount: (state, { payload }) => {
             payload.forEach(item => {
                 const { name, data } = item;
-                console.log(name, data);
                 switch (name) {
                     case "q":
                         state.searchText = data;
+                        break;
                     case "shape":
                         state.selectedShapes = data;
+                        break;
                     case "color":
                         state.selectedColors = data;
-                    case "sizes":
+                        break;
+                    case "size":
                         state.selectedSizes = data;
+                        break;
                 }
             });
         },

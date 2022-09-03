@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import DataDisplay from "./Components/DataDisplay";
 import Search from "./Components/Search";
 import Sidebar from "./Components/Sidebar";
@@ -36,14 +36,27 @@ export default function App() {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const filtersState = useSelector(state => state.filters);
+    const planetsState = useSelector(state => state.data);
     const dispatch = useDispatch();
 
     function generateUrl() {
         let url = `http://localhost:3000/planets?q=${filtersState.searchText}`;
         const { selectedColors, selectedShapes, selectedSizes } = filtersState;
-        selectedColors?.forEach(color => (url += `&color=${color}`));
-        selectedShapes?.forEach(shape => (url += `&shape=${shape}`));
-        selectedSizes?.forEach(size => (url += `&size=${size}`));
+        selectedColors?.forEach(color => {
+            if (color.length !== 0) {
+                url += `&color=${color}`;
+            }
+        });
+        selectedShapes?.forEach(shape => {
+            if (shape.length !== 0) {
+                url += `&shape=${shape}`;
+            }
+        });
+        selectedSizes?.forEach(size => {
+            if (size.length !== 0) {
+                url += `&size=${size}`;
+            }
+        });
         return url;
     }
 
@@ -57,7 +70,7 @@ export default function App() {
     }
 
     return (
-        <section className="max-w-5xl mx-auto px-3 xl:px-0">
+        <section className="max-w-5xl mx-auto px-3 xl:px-0 mb-12">
             <Transition.Root show={mobileFiltersOpen} as={Fragment}>
                 <Dialog
                     as="div"
@@ -138,7 +151,12 @@ export default function App() {
                         <div className="md:col-span-3 mt-2">
                             <div className="max-w-2xl mx-auto   lg:max-w-7xl lg:pl-6">
                                 <h2 className="font-semibold text-xl tracking-tight mb-4 text-blue-900">
-                                    Results
+                                    {planetsState?.finalData?.length}{" "}
+                                    {`Result${
+                                        planetsState?.finalData?.length !== 1
+                                            ? "s"
+                                            : ""
+                                    }`}
                                 </h2>
                                 <DataDisplay />
                             </div>
