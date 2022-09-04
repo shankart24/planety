@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { handleSearch } from "../Store/features/filterSlice";
+import { handleSearch } from "../../store/features/filterSlice";
 
 export default function Search({ fetchData }) {
     const filtersState = useSelector(state => state.filters);
@@ -8,7 +8,7 @@ export default function Search({ fetchData }) {
     return (
         <div className="pt-10 pb-3 ">
             <h3 className="font-semibold text-xl tracking-tight mb-4 text-blue-900">
-                Find your favourite Planet
+                Find your favourite planet
             </h3>
             <form className="flex flex-col items-center  mb-4 sm:flex-row ">
                 <input
