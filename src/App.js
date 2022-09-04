@@ -32,10 +32,10 @@ import {
     Menu
 } from "@headlessui/react";
 import apiCall from "./functions/apiCall";
+import { baseUrl } from "./config";
 
 export default function App() {
     const [isLoading, setIsLoading] = useState(true);
-
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const filtersState = useSelector(state => state.filters);
@@ -43,7 +43,7 @@ export default function App() {
     const dispatch = useDispatch();
 
     function generateUrl() {
-        let url = `http://localhost:3000/planets?q=${filtersState.searchText}`;
+        let url = `${baseUrl}/planets?q=${filtersState.searchText}`;
         const { selectedColors, selectedShapes, selectedSizes } = filtersState;
         selectedColors?.forEach(color => {
             if (color.length !== 0) url += `&color=${color}`;
@@ -125,7 +125,7 @@ export default function App() {
                     </Transition.Child>
                 </Dialog>
             </Transition.Root>
-            {isLoading ? (
+            {isLoading && (
                 <div className="flex flex-col justify-center items-center h-52">
                     <svg
                         aria-hidden="true"
@@ -147,47 +147,49 @@ export default function App() {
                         Loading
                     </p>
                 </div>
-            ) : (
-                <main className="max-w-7xl mx-auto px-4  ">
-                    <Search fetchData={fetchData} />
-                    <div className="relative z-10 flex items-center justify-end   ">
-                        <div className="flex items-center py-2">
-                            <button
-                                type="button"
-                                className="p-2 -m-2 sm:ml-6  text-gray-900  font-medium flex md:hidden"
-                                onClick={() => setMobileFiltersOpen(true)}
-                            >
-                                <p className="text-md">Filters</p>
-                                <FilterIcon
-                                    className="w-5 h-5 ml-2"
-                                    aria-hidden="true"
-                                />
-                            </button>
-                        </div>
+            )}
+            <main
+                className={`${
+                    isLoading ? "invisible" : "visible"
+                } max-w-7xl mx-auto px-4  `}
+            >
+                <Search fetchData={fetchData} />
+                <div className="relative z-10 flex items-center justify-end   ">
+                    <div className="flex items-center py-2">
+                        <button
+                            type="button"
+                            className="p-2 -m-2 sm:ml-6  text-gray-900  font-medium flex md:hidden"
+                            onClick={() => setMobileFiltersOpen(true)}
+                        >
+                            <p className="text-md">Filters</p>
+                            <FilterIcon
+                                className="w-5 h-5 ml-2"
+                                aria-hidden="true"
+                            />
+                        </button>
                     </div>
-                    <section className="">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-10">
-                            <form className="hidden md:block">
-                                <Filters fetchData={fetchData} />
-                            </form>
-                            <div className="md:col-span-3 mt-2">
-                                <div className="max-w-2xl mx-auto   lg:max-w-7xl lg:pl-6">
-                                    <h2 className="font-semibold text-xl tracking-tight mb-4 text-blue-900">
-                                        {planetsState?.finalData?.length}{" "}
-                                        {`Result${
-                                            planetsState?.finalData?.length !==
-                                            1
-                                                ? "s"
-                                                : ""
-                                        }`}
-                                    </h2>
-                                    <DataDisplay />
-                                </div>
+                </div>
+                <section className="">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-10">
+                        <form className="hidden md:block">
+                            <Filters fetchData={fetchData} />
+                        </form>
+                        <div className="md:col-span-3 mt-2">
+                            <div className="max-w-2xl mx-auto   lg:max-w-7xl lg:pl-6">
+                                <h2 className="font-semibold text-xl tracking-tight mb-4 text-blue-900">
+                                    {planetsState?.finalData?.length}{" "}
+                                    {`Result${
+                                        planetsState?.finalData?.length !== 1
+                                            ? "s"
+                                            : ""
+                                    }`}
+                                </h2>
+                                <DataDisplay />
                             </div>
                         </div>
-                    </section>
-                </main>
-            )}
+                    </div>
+                </section>
+            </main>
         </section>
     );
 }

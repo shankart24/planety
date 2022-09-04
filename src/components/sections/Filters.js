@@ -12,9 +12,7 @@ import {
 import Checkbox from "../Checkbox";
 
 export default function Filters({ fetchData }) {
-    const [state, setState] = useState({
-        initialDataFetch: false
-    });
+    const [initialFetchDone, setInitialFetchDone] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const filtersState = useSelector(state => state.filters);
     const dispatch = useDispatch();
@@ -24,10 +22,7 @@ export default function Filters({ fetchData }) {
         const res = await apiCall(`${location.search}`, "");
         if (!res.error) {
             dispatch(addData(res.data));
-            setState(state => ({
-                ...state,
-                initialDataFetch: true
-            }));
+            setInitialFetchDone(!initialFetchDone);
         }
     }
 
@@ -63,7 +58,7 @@ export default function Filters({ fetchData }) {
     }, []);
 
     useEffect(() => {
-        if (state.initialDataFetch) {
+        if (initialFetchDone) {
             fetchData();
         }
     }, [
